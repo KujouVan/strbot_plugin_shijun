@@ -8,7 +8,7 @@ from .rules import build_rules, inject, revision, settings, validate
 from .style import DEFAULT_STYLE
 
 
-@register('astrbot_plugin_natural_style', 'local', '识君：简短毒舌文风与按 QQ 定制的人物关系', '2.0.0')
+@register('astrbot_plugin_natural_style', 'local', '识君：简短毒舌文风与按 QQ 定制的人物关系', '2.0.1')
 class NaturalStylePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
