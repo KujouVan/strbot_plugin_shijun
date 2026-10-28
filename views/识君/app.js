@@ -15,8 +15,7 @@
   }
   function error(message = '') { $('error').textContent = message; $('error').hidden = !message; }
   function changed() { dirty = true; $('saveState').textContent = '有未保存修改'; $('save').disabled = busy; $('previewText').hidden = true; $('matchResult').textContent = ''; }
-  function draft() { return {...config, enabled: $('enabled').checked, style_prompt: $('stylePrompt').value,
-    injection_mode: $('injection').value, relations_json: JSON.stringify(rows)}; }
+  function draft() { return {...config, enabled: $('enabled').checked, injection_mode: $('injection').value, relations_json: JSON.stringify(rows)}; }
   function renderList() {
     $('count').textContent = rows.length;
     $('people').replaceChildren();
@@ -30,7 +29,7 @@
     });
     if (!$('people').children.length) { const note = document.createElement('p'); note.className = 'hint'; note.textContent = rows.length ? '没有匹配的人物' : '还没有专属关系。点击「新增」，为一个 QQ 设置例外。'; $('people').append(note); }
   }
-  function modeHint() { $('modeHint').textContent = $('mode').value === 'replace' ? '不再加入内置毒舌或全局文风。专属要求必填，长度和语气由你决定。' : '保留全局文风，但以这个人的专属要求解决冲突。'; }
+  function modeHint() { $('modeHint').textContent = $('mode').value === 'replace' ? '专属要求决定此人的表达方式；未指定部分继续沿用 AstrBot 人格。' : '沿用当前 AstrBot 人格，仅以专属要求覆盖冲突部分。'; }
   function select(index) {
     selected = index; $('globalPane').hidden = index >= 0; $('personPane').hidden = index < 0;
     $('globalTab').classList.toggle('active', index < 0);
@@ -41,8 +40,8 @@
   }
   function apply(data) {
     config = data.config; rows = JSON.parse(config.relations_json); rev = data.revision;
-    $('enabled').checked = config.enabled; $('stylePrompt').value = config.style_prompt;
-    $('injection').value = config.injection_mode; $('defaultStyle').textContent = data.default_style;
+    $('enabled').checked = config.enabled;
+    $('injection').value = config.injection_mode;
     dirty = false; $('saveState').textContent = '已保存 · 下一条消息生效'; select(selected >= rows.length ? -1 : selected);
   }
   async function run(action) {
@@ -62,15 +61,16 @@
   });
   $('personPrompt').oninput = () => { rows[selected].prompt = $('personPrompt').value; changed(); };
   $('personEnabled').onchange = () => { rows[selected].enabled = $('personEnabled').checked; changed(); renderList(); };
-  for (const key of ['enabled','stylePrompt','injection']) $(key).addEventListener('input', changed);
+  for (const key of ['enabled','injection']) $(key).addEventListener('input', changed);
   $('delete').onclick = async () => { if (await ask('删除这个人物关系？保存后生效。')) { rows.splice(selected,1); changed(); select(-1); } };
   $('save').onclick = () => run(async () => { const index = selected; const data = await bridge.apiPost('settings', {config:draft(),revision:rev}); selected = index; apply(data); });
   $('reload').onclick = async () => { if (!dirty || await ask('重新载入会丢弃未保存修改，继续吗？')) run(async () => apply(await bridge.apiGet('settings'))); };
   $('preview').onclick = () => run(async () => {
     const data = await bridge.apiPost('preview', {config:draft(),qq:$('previewQQ').value.trim()});
-    $('matchResult').textContent = !data.prompt ? '识君已停用，不注入提示词' : data.matched ? '已命中人物关系，专属要求优先' : '未命中人物关系，使用全局文风';
-    $('previewText').textContent = data.prompt || '不注入'; $('previewText').hidden = false;
+    $('matchResult').textContent = !data.prompt ? '未注入人物补充：沿用当前 AstrBot 人格（或识君已停用）' : data.matched ? '已命中人物关系，专属要求优先' : '未命中人物关系，沿用当前 AstrBot 人格';
+    $('previewText').textContent = data.prompt || '不注入额外规则。实际人格由当前会话决定，此处仅预览识君补充。'; $('previewText').hidden = false;
   });
   window.addEventListener('beforeunload', e => { if(dirty) {e.preventDefault(); e.returnValue = '';} });
   run(async () => { if(!bridge) throw new Error('请从 AstrBot 插件卡片的「打开视图」进入。'); await Promise.race([bridge.ready(),new Promise((_,reject) => setTimeout(() => reject(new Error('连接超时，请从插件卡片重新打开视图。')),12000))]); apply(await bridge.apiGet('settings')); });
 })();
+

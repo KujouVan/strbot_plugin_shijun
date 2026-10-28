@@ -1,6 +1,23 @@
 {
-  "enabled": {"description": "启用识君", "type": "bool", "default": true},
-  "style_prompt": {"description": "全局文风（留空使用原版简短毒舌）", "type": "text", "default": ""},
-  "injection_mode": {"description": "提示词强化方式", "type": "string", "default": "reinforced", "options": ["system", "reinforced"], "hint": "system：系统提示末尾追加；reinforced：另在本轮消息末尾提醒。不是模型数值权重。"},
-  "relations_json": {"description": "人物关系（建议通过打开视图编辑）", "type": "text", "default": "[]", "hint": "按真实发送者 QQ 匹配，专属要求覆盖全局文风。"}
+  "enabled": {
+    "description": "启用识君",
+    "type": "bool",
+    "default": true
+  },
+  "injection_mode": {
+    "description": "提示词强化方式",
+    "type": "string",
+    "default": "reinforced",
+    "options": [
+      "system",
+      "reinforced"
+    ],
+    "hint": "system：系统提示末尾追加；reinforced：另在本轮消息末尾提醒。不是模型数值权重。"
+  },
+  "relations_json": {
+    "description": "人物关系（建议通过打开视图编辑）",
+    "type": "text",
+    "default": "[]",
+    "hint": "按真实发送者 QQ 匹配；未指定的要求沿用当前 AstrBot 人格。"
+  }
 }

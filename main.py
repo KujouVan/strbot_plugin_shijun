@@ -5,10 +5,9 @@ from astrbot.api.provider import ProviderRequest
 from astrbot.api.star import Context, Star, register
 from astrbot.api.web import request, json_response, error_response
 from .rules import build_rules, inject, revision, settings, validate
-from .style import DEFAULT_STYLE
 
 
-@register('astrbot_plugin_natural_style', 'local', '识君：简短毒舌文风与按 QQ 定制的人物关系', '2.0.1')
+@register('astrbot_plugin_natural_style', 'local', '识君：沿用 AstrBot 人格，按 QQ 定制人物关系', '2.1.0')
 class NaturalStylePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
@@ -30,7 +29,7 @@ class NaturalStylePlugin(Star):
         hooks = star_handlers_registry.get_handlers_by_event_type(EventType.OnLLMRequestEvent)
         order = [{'name': h.handler_full_name, 'priority': h.extras_configs.get('priority', 0)} for h in hooks]
         return json_response({'status': 'ok', 'data': {'config': settings(self.config),
-                             'revision': revision(self.config), 'default_style': DEFAULT_STYLE,
+                             'revision': revision(self.config),
                              'hook_order': order}})
 
     async def save_settings(self):
@@ -63,3 +62,4 @@ class NaturalStylePlugin(Star):
             return json_response({'status': 'ok', 'data': {'prompt': block, 'matched': bool(matched)}})
         except ValueError as exc:
             return error_response(str(exc))
+
